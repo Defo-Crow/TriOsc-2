@@ -1,0 +1,29 @@
+
+name: Build TriOsc for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "build/TriOsc_artefacts/Release/VST3/TriOsc.vst3" -DestinationPath "TriOsc-Windows-x64-VST3.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TriOsc-Windows-x64-VST3
+          path: TriOsc-Windows-x64-VST3.zip
